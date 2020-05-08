@@ -1,2 +1,2 @@
-CONTRIBUTORS
+#CONTRIBUTORS
 Jade Dawson, @jadedaws
