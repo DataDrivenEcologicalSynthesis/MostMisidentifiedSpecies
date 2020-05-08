@@ -1,1 +1,2 @@
-# MostMisidentifiedSpecies
+CONTRIBUTORS
+Jade Dawson, @jadedaws
