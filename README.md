@@ -4,7 +4,9 @@ This project aims to find species that are hard to identify using the iNaturalis
 
 ## Contributors
 Jade Dawson, @jadedaws
+
 Victor Cameron, @vcameron1
+
 Catherine Sirois-Delisle, @CatherineDelisle
 
 ## Description
