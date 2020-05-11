@@ -7,6 +7,7 @@ This project aims to find species that are hard to identify using the iNaturalis
 - Jade Dawson - `@jadedaws`
 - Victor Cameron - `@vcameron1`
 - Catherine Sirois-Delisle - `@CatherineDelisle`
+- Simon Morvan - `@SimonMorvan`
 
 ## Description
 
