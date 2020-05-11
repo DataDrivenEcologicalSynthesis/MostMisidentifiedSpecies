@@ -2,7 +2,7 @@
 
 This project aims to find species that are hard to identify using the iNaturalist app.# MostMisidentifiedSpecies
 
-## Contributors
+## People working on the project
 
 - Jade Dawson - `@jadedaws`
 - Victor Cameron - `@vcameron1`
