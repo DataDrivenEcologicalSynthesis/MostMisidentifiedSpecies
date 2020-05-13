@@ -6,6 +6,7 @@
 - Victor Cameron - `@vcameron1`
 - Catherine Sirois-Delisle - `@CatherineDelisle`
 - Simon Morvan - `@SimonMorvan`
+- Brenda Thompson - `@fendabenda`
 
 ## Description
 
