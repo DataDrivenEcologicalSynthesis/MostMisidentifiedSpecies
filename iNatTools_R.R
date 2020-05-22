@@ -18,5 +18,5 @@ data_disagree_multID <- subset(data_disagree,data_disagree$identifications_count
 # subsets the first data.frame to select observations that have more than 1 identifier. 
 
 # Focussing on bees in Greater MTL
-qc_bee <- iNat(taxon_id = 47221, place_id = 139965)
+mtl_bee <- iNat(taxon_id = 47221, place_id = 139965)
 #all records of honey bees, bumblebees, and allies in MTL area
