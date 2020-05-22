@@ -4,7 +4,8 @@
 
 #/////////////////////////////////////////////#
 
-
+library(devtools)
+library(install_github)
 install_github("pjhanly/iNatTools")
 library(iNatTools)
 # R Wrapper for downloading iNaturalist data
