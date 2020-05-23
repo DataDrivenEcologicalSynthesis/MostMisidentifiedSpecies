@@ -1,0 +1,205 @@
+---
+title: "Preliminary data exploration"
+author: "MostMisidentifiedSpecies team"
+date: '2020-05-22'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Import data for observed bees in greater montreal as of 2020-05-23
+
+```{r import data using iNatTools package}
+
+# Import data gathered using iNatTools
+data_iNatTools <- readRDS("mtl_bee_iNatTools_2020-05-23.rds")
+
+# Import data gathered directly from API
+data_api <- readRDS("mtl_bee_API_2020-05-23.rds")
+
+```
+
+The dataset *data_iNatTools* is comprized of 416 records and 153 columns/variables.
+
+The dataset *data_api* is comprized of 422 records and 153 columns/variables.
+
+
+## Explore the difference in number records between datasets
+
+```{r why difference in num records}
+
+# Which observations are absent from data_iNatTool
+unique(data_api[! data_api$uuid %in% data_iNatTools$uuid,]$quality_grade)
+
+```
+
+All observations absent from *data_iNatTool* have *casual* quality grade!!!
+
+These observations are not usefull to us as they are not verifiable. i.e., they do not have the minimum documentation.
+
+
+## Lets remove these casual quality grade observations from data_api to avoid mistakes
+
+```{r clean data}
+
+# Remove casual quality grade observations
+data <- data_api[! data_api$quality_grade == "casual",]
+
+```
+
+I selected *data_api* as the data we'll use, but *data_iNatTools* could equally be used.
+
+
+## Available information on observations
+
+```{r Observation information}
+
+# Column names
+colnames(data)
+
+```
+
+153 columns.
+
+
+### What columns may hold information on ID quality
+
+[1] quality_grade: research, needs_id, casual
+
+identifications: [8] identifications_most_agree: T/F, [10] identifications_most_disagree: T/F, [52] identifications_some_agree: T/F
+
+num_identification: [37] num_identification_agreements, [46] num_identification_disagreements
+
+[13] comments_count
+
+[18] quality_metrics: ???
+
+[44] identifications_count:
+
+[55] identifications
+
+[85] taxon.rank_level
+
+[106] taxon.flag_counts.unresolved
+
+[107] taxon.flag_counts.resolved
+
+[151] user.roles: none, curator, admin
+
+**Possibility to get maverick identifications (Taxon is not a descendant or ancestor of the community taxon. The community does not agree with this identification) from API.
+
+
+### What information did other studies used?
+
+
+## Observation identification agreement and quality grade
+
+
+### Identification agreement
+
+Identification agreement can take 3 values: *most_agree*, *most_disagree*, *some_agree*.
+
+
+### Quality grade
+
+See https://www.inaturalist.org/pages/help#quality
+
+An obervation is associated with *needs_id* quality grade until it atteins *research* grade or is revised as *casual* quality. It is associated with observations without community (2/3) agreement on a specific ID, that are voted needs more ID, or that is not voted as wild/naturalized if there are at least 10 other observations of a genus or lower in the smallest county-, state-, or country-equivalent place that contains this observation and 80% or more of those observations have been marked as not wild/naturalized.
+
+Observations become *research* quality grade when when more than 2/3 of identifiers agree a on species-level ID or lower. Observations may loose *research* quality grade if the community ID shifts above the species-level. Observations can be *research* grade at the genus level if the community agrees on a genus-level ID and votes that the observation does not need more IDs.
+
+Observations that are not verifiable because they do not have a date, are not georeferenced (i.e. have lat/lon coordinates), have no photos or sounds, and aren't of a captive or cultivated organism, get the *causual* quality grade.
+
+
+## Test proportion of « research grade observations » / « all observations » and for relationship between identification agreement and quality grade in observations
+
+```{r quality grade vs. dentification agreement}
+
+# How many possible identification grades?
+unique(data$quality_grade)
+
+# How many observations are associated to respective identifications categories?
+length(data[data$identifications_most_agree == T,]$identifications_most_agree)
+length(data[data$identifications_most_disagree == T,]$identifications_most_disagree)
+length(data[data$identifications_some_agree == T,]$identifications_some_agree)
+
+# Calculate propotion of reasearch grade observations
+
+# # For all observations
+all <- length(data[data$quality_grade=="research",]$uuid)/length(data$uuid)
+
+# # For most_agree identifications
+agreement <- data[data$identifications_most_agree,]
+prop_most_agree <- length(agreement[agreement$quality_grade=="research",]$uuid)/length(agreement$uuid)
+
+# # For most_disagree identifications
+disagreement <- data[data$identifications_most_disagree,]
+prop_most_disagree <- length(disagreement[disagreement$quality_grade=="research"]$uuid)/length(disagreement$uuid)
+
+# # For some_agree identifications
+some_agreement <- data[data$identifications_some_agree,]
+prop_some_agree <- length(some_agreement[some_agreement$quality_grade=="research",]$uuid)/length(some_agreement$uuid)
+
+```
+
+Observations have only one of two quality grades, *need_id* or *reseach*.
+
+Turns out observations identified as *most_agree* and *some_agree* are the same. What is the difference between both identiciations?
+
+There are 367 observations identified as *most_agree* and as *some_agree* in the dataset while only 1 *most_disagree* identification.
+
+
+### Plot results
+
+```{r pressure, echo=FALSE}
+
+y <- c(all, prop_most_agree,prop_most_disagree,prop_some_agree)
+barplot(y, names.arg = c("all \nn=416", "most_agree \nn=367","most_disagree \nn=1","some_agree \nn=367"), ylab = "Proportion research grade", ylim = c(0,1))
+
+```
+
+
+~ 70% (296) of observations recieved *reseach* quality grade. Others (120) were identified as *needs_id*.
+
+ ~80% (294) of observations identified as *most_agree* and *some_agree* and none of the *most_disagree* observations recieved *research* quality grade. The remaining (~20% observations identified as *most_agree* and *some_agree* and 100% of *most_disagree* observations) recieved a *need_id* quality grade.
+
+It appears some observations (2 *research* and 46 *needs_id*) are found in neither of the identification categories?!?
+
+
+## Explore which observations are found in neither of the identification categories
+
+```{r why observation identification not categorized?}
+
+# Which observations are in neither of the identification categories
+
+# # Verify which observations are neither in *most_agree*, *some_agree*, or *most_disagree* categories
+missing_obs <- unique(data[! data$uuid %in% agreement$uuid &
+                             ! data$uuid %in% some_agreement$uuid &
+                             ! data$uuid %in% disagreement$uuid
+                           ,]$uuid)
+
+# # Verify all missing observation are captuded
+length(missing_obs)
+
+# # View
+View(data[data$uuid == missing_obs,])
+
+```
+
+
+## Select the « not research grade » observation that have more than one identifier to select the observations that are disagreed upon
+
+```{r not research quality grade}
+
+# Select not research quality grade observations that have multiple identifications
+notResearchObs <- data[! data$quality_grade == "research" &
+                         data$identifications_count > 1,]
+
+# View distribution of identification counts
+hist(notResearchObs$identifications_count, xlab = "Number identification count \nn=26")
+
+```
+
