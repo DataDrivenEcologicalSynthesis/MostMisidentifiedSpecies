@@ -111,12 +111,12 @@ An obervation is associated with *needs_id* quality grade until it atteins *rese
 
 Observations become *research* quality grade when when more than 2/3 of identifiers agree a on species-level ID or lower. Observations may loose *research* quality grade if the community ID shifts above the species-level. Observations can be *research* grade at the genus level if the community agrees on a genus-level ID and votes that the observation does not need more IDs.
 
-Observations that are not verifiable because they do not have a date, are not georeferenced (i.e. have lat/lon coordinates), have no photos or sounds, and aren't of a captive or cultivated organism, get the *causual* quality grade.
+Observations that are not verifiable because they do not have a date, are not georeferenced (i.e. have lat/lon coordinates), have no photos or sounds, and aren't of a captive or cultivated organism, get the *casual* quality grade.
 
 
 ## Test proportion of « research grade observations » / « all observations » and for relationship between identification agreement and quality grade in observations
 
-```{r quality grade vs. dentification agreement}
+```{r quality grade vs. identification agreement}
 
 # How many possible identification grades?
 unique(data$quality_grade)
@@ -145,7 +145,7 @@ prop_some_agree <- length(some_agreement[some_agreement$quality_grade=="research
 
 ```
 
-Observations have only one of two quality grades, *need_id* or *reseach*.
+Observations have only one of two quality grades, *needs_id* or *reseach*.
 
 Turns out observations identified as *most_agree* and *some_agree* are the same. What is the difference between both identiciations?
 
@@ -162,9 +162,9 @@ barplot(y, names.arg = c("all \nn=416", "most_agree \nn=367","most_disagree \nn=
 ```
 
 
-~ 70% (296) of observations recieved *reseach* quality grade. Others (120) were identified as *needs_id*.
+~ 70% (296) of observations received *research* quality grade. Others (120) were identified as *needs_id*.
 
- ~80% (294) of observations identified as *most_agree* and *some_agree* and none of the *most_disagree* observations recieved *research* quality grade. The remaining (~20% observations identified as *most_agree* and *some_agree* and 100% of *most_disagree* observations) recieved a *need_id* quality grade.
+ ~80% (294) of observations identified as *most_agree* and *some_agree* and none of the *most_disagree* observations recieved *research* quality grade. The remaining (~20% observations identified as *most_agree* and *some_agree* and 100% of *most_disagree* observations) recieved a *needs_id* quality grade.
 
 It appears some observations (2 *research* and 46 *needs_id*) are found in neither of the identification categories?!?
 
