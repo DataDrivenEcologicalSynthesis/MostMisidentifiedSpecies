@@ -15,10 +15,10 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r import data using iNatTools package}
 
 # Import data gathered using iNatTools
-data_iNatTools <- readRDS("mtl_bee_iNatTools_2020-05-23.rds")
+data_iNatTools <- readRDS("../data/mtl_bee_iNatTools_2020-05-23.rds")
 
 # Import data gathered directly from API
-data_api <- readRDS("mtl_bee_API_2020-05-23.rds")
+data_api <- readRDS("../data/mtl_bee_API_2020-05-23.rds")
 
 ```
 
