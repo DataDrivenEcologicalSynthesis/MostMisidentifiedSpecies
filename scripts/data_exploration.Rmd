@@ -200,6 +200,34 @@ notResearchObs <- data[! data$quality_grade == "research" &
 
 # View distribution of identification counts
 hist(notResearchObs$identifications_count, xlab = "Number identification count \nn=26")
+```
 
+\br 
+
+## Are the non-research grade observations really disagreed upon?
+
+\br 
+
+```{r disagreement in non-research quality grade}
+# Subseting data.frame for plotting purposes 
+library(tidyverse)
+notResearchObs_plot <- notResearchObs %>%
+                        select(id,
+                               identifications_count,
+                               num_identification_agreements)
+notResearchObs_plot$id <- as.factor(notResearchObs_plot$id)
+
+#Creating a new column corresponding to the percentage of identifiers' agreement 
+notResearchObs_plot$PercAgreement <- notResearchObs_plot$num_identification_agreements/notResearchObs_plot$identifications_count
+
+# Plot 
+library(ggplot2)
+ggplot(notResearchObs_plot, aes(x=id,y=PercAgreement)) + 
+    geom_bar(stat="identity") + 
+    scale_y_continuous(labels=scales::percent)+ 
+    ggtitle("Even for non-research grade observations, \nidentifiers tend to agree on the identifications")+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+    ylab("Identifiers agreement")+
+    xlab("Observation ID")
 ```
 
