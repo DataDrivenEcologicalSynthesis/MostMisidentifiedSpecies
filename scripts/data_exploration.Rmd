@@ -231,3 +231,60 @@ ggplot(notResearchObs_plot, aes(x=id,y=PercAgreement)) +
     xlab("Observation ID")
 ```
 
+\br
+
+```{r Bees canada}
+Bees_canada <- read.csv("../data/Bees_canada_26_05_20.csv")
+```
+
+The dataset *Bees_canada* is comprized of 360009 records and 34 columns/variables.
+
+\br
+
+## Research grade vs needs ID 
+
+```{r Quality grade}
+ggplot(data=Bees_canada, aes(x= Bees_canada$scientific_name, fill=Bees_canada$quality_grade))+
+  ggtitle("Quality grade for each observation of a specific taxa")+
+  geom_bar()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))+
+  ylab("Count")+
+  xlab("Scientific name")
+```
+
+\br
+
+There are too many taxa to plot! 
+
+\br
+
+**Objective** : select the taxa which have more "needs_id" observation than "research grade" observations
+
+```{r Quality grade, needs_id > research grade}
+
+Bees_CA_Qgrade <- plyr::count(Bees_canada, c("scientific_name","quality_grade"))
+# Counts the occurences of quality grade per taxa (scientific name)
+
+library(tidyr)
+Bees_CA_Qgrade_wide <- spread(Bees_CA_Qgrade, quality_grade, freq)# Converts to wide format 
+Bees_CA_Qgrade_wide[is.na(Bees_CA_Qgrade_wide)] <- 0 # Replaces NA by 0
+
+Bees_Needs_ID <- subset(Bees_CA_Qgrade_wide, Bees_CA_Qgrade_wide$needs_id>Bees_CA_Qgrade_wide$research)
+#  Selects he taxa which have more "needs_id" observation than "research grade" observations
+
+library(reshape2)
+Bees_Needs_ID_long <- melt(Bees_Needs_ID)# Convert to wide format for plotting
+
+# Plot
+ggplot(data=Bees_Needs_ID_long, aes(x= Bees_Needs_ID_long$scientific_name, y=Bees_Needs_ID_long$value, fill=Bees_Needs_ID_long$variable))+
+  ggtitle("Taxa for which there are more needs_id observations than research grade")+
+  geom_bar(stat="identity",position="stack")+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5),
+        legend.position = "bottom")+
+  scale_fill_discrete("Quality grade")+
+  ylab("Count")+
+  xlab("Scientific name")
+
+``` 
+
+Although this still lacks clarity, it seems that many taxa in this plot are not identified to species level.
