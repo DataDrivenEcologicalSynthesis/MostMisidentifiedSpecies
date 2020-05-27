@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-## Import data for observed bees in Canada as of 2020-05-27
+## Import data for observed bees in Canada as of 2020-05-27, 3:30pm
 
 
 ### Import data using the API
@@ -30,20 +30,20 @@ fetch <- list("per_page" = 200,
               "order" = "desc", 
               "order_by" = "created_at",
               "place_id" = 6712,                    # Quebec(13336) Montreal(139965) Laval (27655) Canada (6712)
-              "taxon_id" = 47221)                     # Honey Bees, Bumble Bees, and Allies (47221)
+              "taxon_id" = 47221)                   # Honey Bees, Bumble Bees, and Allies (47221)
 
 # Get first result from API
 res <- GET(api, query=c(fetch, list(page=1)))    
 resDF <- fromJSON(httr::content(res, as = "text"),flatten=TRUE)
 
-# How many observations? Too many... 25900
+# How many observations? Too many... 259899
 resDF$total_results
 
-# If number observations > 10000 go by steps of 10 degrees of longitude 
+# Since number observations > 10000, go by sections of 10 degrees of longitude 
 swlng <- c(-141,-130,-120,-110,-100,-90,-80,-70,-60)
 nelng <-  c(-130,-120,-110,-100,-90,-80,-70,-60,-52)
 
-  # # Loop through 10 degrees of latitude sections
+  # # Loop through 10 degrees of longitude sections
   for(j in 1:length(swlng)){
     # # # Define query
     fetch <- list("per_page" = 200,
@@ -52,7 +52,7 @@ nelng <-  c(-130,-120,-110,-100,-90,-80,-70,-60,-52)
                 "swlng" = swlng[j],                   # Limit query to ~10 degrees of longitude
                 "nelng" = nelng[j],
                 "place_id" = 6712,                    # Quebec(13336) Montreal(139965) Laval (27655) Canada (6712)
-                "taxon_id" = 47221)                     # Honey Bees, Bumble Bees, and Allies (47221)
+                "taxon_id" = 47221)                   # Honey Bees, Bumble Bees, and Allies (47221)
     
     # # # Get first result from API
     res <- GET(api, query=c(fetch, list(page=1)))    
@@ -61,22 +61,24 @@ nelng <-  c(-130,-120,-110,-100,-90,-80,-70,-60,-52)
     # # # Limit number of resuts to 10000
     if (resDF$total_results < 10001 & resDF$total_results > 200) {
     
-    # # # Get all results from API
-    for (i in 2:(ceiling(resDF$total_results/resDF$per_page))) {
-          res.t <- GET(api, query=c(fetch,list(page=i)))
-          resDF.t <- fromJSON(httr::content(res.t, as = "text"),flatten=TRUE)
-          resDF$results <- bind_rows(resDF$results,resDF.t$results)
-          Sys.sleep(1)
-        }
-        data_loop <- resDF$results
+      # # # # Get all results from API
+      for (i in 2:(ceiling(resDF$total_results/resDF$per_page))) {
+            res.t <- GET(api, query=c(fetch,list(page=i)))
+            resDF.t <- fromJSON(httr::content(res.t, as = "text"),flatten=TRUE)
+            resDF$results <- bind_rows(resDF$results,resDF.t$results)
+            Sys.sleep(1)
+      }
+      
+      # # # # Store observations per page    
+      data_loop <- resDF$results
     }
     
+    # # # Store observations per sections of 10 degrees of longitude
     if(j == 1){
       data_api <- data_loop
     }else{
       data_api <- bind_rows(data_api,data_loop)
     }
-    print(j)
   }
 
 # View                    
@@ -88,4 +90,4 @@ saveRDS(data_api, file = "Can_bees_API_2020-05-27.rds")
 ```
 
 
-The dataset *data_api* is comprized of 422 records and 153 columns/variables.
+The dataset *data_api* is comprized of 25899 records and 154 columns/variables.
