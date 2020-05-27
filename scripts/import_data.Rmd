@@ -10,38 +10,17 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r libraries}
-
-### Libraries ###
-library(iNatTools)
-
-```
-
-
 ## Import data for observed bees in greater montreal as of 2020-05-23
-
-### Import data using iNatTools package
-
-```{r import data using iNatTools package}
-
-# Import data
-data_iNatTools <- iNat(place_id=139965,                          # Quebec(13336) Montreal(139965) Laval (27655) Canada (6712)
-                       taxon_id=47221)                           # Honey Bees, Bumble Bees, and Allies (47221)
-
-# View                    
-head(data_iNatTools)
-
-# Save data
-saveRDS(data_iNatTools, file = "mtl_bee_iNatTools_2020-05-23.rds")
-
-```
-
-The dataset *data_iNatTool* is comprized of 416 records and 153 columns/variables.
 
 
 ### Import data using the API
 
 ```{r import data directly from API}
+
+# Libraries
+library("tidyverse")
+library("httr")
+library("jsonlite")
 
 # Set API url
 api <- "https://api.inaturalist.org/v1/observations"
@@ -50,25 +29,59 @@ api <- "https://api.inaturalist.org/v1/observations"
 fetch <- list("per_page" = 200,
               "order" = "desc", 
               "order_by" = "created_at",
-              "place_id" = 139965,                    # Quebec(13336) Montreal(139965) Laval (27655) Canada (6712)
+              "place_id" = 6712,                    # Quebec(13336) Montreal(139965) Laval (27655) Canada (6712)
               "taxon_id" = 47221)                     # Honey Bees, Bumble Bees, and Allies (47221)
 
 # Get first result from API
 res <- GET(api, query=c(fetch, list(page=1)))    
 resDF <- fromJSON(httr::content(res, as = "text"),flatten=TRUE)
 
-# Limit number of resuts to 10000
-if (resDF$total_results < 10001 & resDF$total_results > 200) {
-  
-  # Get all results from API
-  for (i in 2:(ceiling(resDF$total_results/resDF$per_page))) {
-        res.t <- GET(api, query=c(fetch,list(page=i)))
-        resDF.t <- fromJSON(httr::content(res.t, as = "text"),flatten=TRUE)
-        resDF$results <- bind_rows(resDF$results,resDF.t$results)
-        Sys.sleep(1)
-      }
-      data_api <- resDF$results
-}
+# How many observations? Too many...
+resDF$total_results
+
+# If number observations > 10000 go by steps of 10 degrees of longitude 
+swlng <- c(-141,-130,-120,-110,-100,-90,-80,-70,-60)
+nelng <-  c(-130,-120,-110,-100,-90,-80,-70,-60,-52)
+
+  # # Initiate result df 
+  data_api
+  # #
+  for(j in 1:length(swlng)){
+    # # # Define query
+    fetch <- list("per_page" = 200,
+                "order" = "desc", 
+                "order_by" = "created_at",
+                "swlng" = swlng[j],                   # Limit query to ~10 degrees of longitude
+                "nelng" = nelng[j],
+                "place_id" = 6712,                    # Quebec(13336) Montreal(139965) Laval (27655) Canada (6712)
+                "taxon_id" = 47221)                     # Honey Bees, Bumble Bees, and Allies (47221)
+    
+    # # # Get first result from API
+    res <- GET(api, query=c(fetch, list(page=1)))    
+    resDF <- fromJSON(httr::content(res, as = "text"),flatten=TRUE)
+    
+    # # # Limit number of resuts to 10000
+    if (resDF$total_results < 10001 & resDF$total_results > 200) {
+    
+    # # # Get all results from API
+    for (i in 2:(ceiling(resDF$total_results/resDF$per_page))) {
+          res.t <- GET(api, query=c(fetch,list(page=i)))
+          resDF.t <- fromJSON(httr::content(res.t, as = "text"),flatten=TRUE)
+          resDF$results <- bind_rows(resDF$results,resDF.t$results)
+          Sys.sleep(1)
+        }
+        data_loop <- resDF$results
+    }
+    
+    if(j == 1){
+      data_api <- data_loop
+    }else{
+      data_api <- bind_rows(data_api,data_loop)
+    }
+    
+  }
+
+
 
 # View                    
 head(data_api)
@@ -77,5 +90,6 @@ head(data_api)
 saveRDS(data_api, file = "mtl_bee_API_2020-05-23.rds")
 
 ```
+
 
 The dataset *data_api* is comprized of 422 records and 153 columns/variables.
