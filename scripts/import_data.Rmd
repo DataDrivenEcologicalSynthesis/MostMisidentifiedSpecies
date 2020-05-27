@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-## Import data for observed bees in greater montreal as of 2020-05-23
+## Import data for observed bees in Canada as of 2020-05-27
 
 
 ### Import data using the API
@@ -36,7 +36,7 @@ fetch <- list("per_page" = 200,
 res <- GET(api, query=c(fetch, list(page=1)))    
 resDF <- fromJSON(httr::content(res, as = "text"),flatten=TRUE)
 
-# How many observations? Too many...
+# How many observations? Too many... 25900
 resDF$total_results
 
 # If number observations > 10000 go by steps of 10 degrees of longitude 
@@ -78,8 +78,6 @@ nelng <-  c(-130,-120,-110,-100,-90,-80,-70,-60,-52)
     }
     print(j)
   }
-
-
 
 # View                    
 View(data_api[1:5,])
