@@ -43,9 +43,7 @@ resDF$total_results
 swlng <- c(-141,-130,-120,-110,-100,-90,-80,-70,-60)
 nelng <-  c(-130,-120,-110,-100,-90,-80,-70,-60,-52)
 
-  # # Initiate result df 
-  data_api
-  # #
+  # # Loop through 10 degrees of latitude sections
   for(j in 1:length(swlng)){
     # # # Define query
     fetch <- list("per_page" = 200,
@@ -78,13 +76,13 @@ nelng <-  c(-130,-120,-110,-100,-90,-80,-70,-60,-52)
     }else{
       data_api <- bind_rows(data_api,data_loop)
     }
-    
+    print(j)
   }
 
 
 
 # View                    
-head(data_api)
+View(data_api[1:5,])
 
 # Save data
 saveRDS(data_api, file = "mtl_bee_API_2020-05-23.rds")
