@@ -99,13 +99,17 @@ The dataset is too large to be uploaded into github at once. It will be breaken 
 # Number of subfiles desired
 noSubFiles <- 3
 
-  # # Verify the number of subfiles will contain an equal amount of observations (can't have 1233.4 observations per file!)
-  length(data_api$uuid)/3 == ceiling(length(data_api$uuid)/3)
-
 # Save data
 for(i in 1:noSubFiles){
+  
+  # # Verify the number of subfiles will contain an equal amount of observations (can't have 1233.4 observations per file!)
+  if((length(data_api$uuid)/3 == ceiling(length(data_api$uuid)/3)) == F) stop("number of observations per subfiles is not a round number. Try another number of desired subfiles")
+  
+  # # Define observations to be included in the subfile
   firstObs <- 1+(i-1)*length(data_api$uuid)/3
   lastObs <- i*length(data_api$uuid)/3
+  
+  # # Save subfiles
   saveRDS(data_api[firstObs:lastObs,], file = paste(i,"-Can_bees_API_2020-05-27.rds",sep = ""))
 }
 
