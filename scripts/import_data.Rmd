@@ -84,10 +84,30 @@ nelng <-  c(-130,-120,-110,-100,-90,-80,-70,-60,-52)
 # View                    
 View(data_api[1:5,])
 
-# Save data
-saveRDS(data_api, file = "Can_bees_API_2020-05-27.rds")
-
 ```
 
 
 The dataset *data_api* is comprized of 25899 records and 154 columns/variables.
+
+
+## Save data
+
+The dataset is too large to be uploaded into github at once. It will be breaken into smaller subfiles.
+
+```{r Save data}
+
+# Number of subfiles desired
+noSubFiles <- 3
+
+  # # Verify the number of subfiles will contain an equal amount of observations (can't have 1233.4 observations per file!)
+  length(data_api$uuid)/3 == ceiling(length(data_api$uuid)/3)
+
+# Save data
+for(i in 1:noSubFiles){
+  firstObs <- 1+(i-1)*length(data_api$uuid)/3
+  lastObs <- i*length(data_api$uuid)/3
+  saveRDS(data_api[firstObs:lastObs,], file = paste(i,"-Can_bees_API_2020-05-27.rds",sep = ""))
+}
+
+```
+
