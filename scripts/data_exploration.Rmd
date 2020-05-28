@@ -1,7 +1,7 @@
 ---
 title: "Preliminary data exploration"
 author: "MostMisidentifiedSpecies team"
-date: '2020-05-22'
+date: '2020-05-27'
 output: html_document
 ---
 
@@ -10,35 +10,24 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-## Import data for observed bees in greater montreal as of 2020-05-23
+## Import data for observed bees in greater montreal as of 2020-05-27, 3:30pm
 
 ```{r import data using iNatTools package}
 
-# Import data gathered using iNatTools
-data_iNatTools <- readRDS("../data/mtl_bee_iNatTools_2020-05-23.rds")
+# Libraries
+library("tidyverse")
 
-# Import data gathered directly from API
-data_api <- readRDS("../data/mtl_bee_API_2020-05-23.rds")
-
-```
-
-The dataset *data_iNatTools* is comprized of 416 records and 153 columns/variables.
-
-The dataset *data_api* is comprized of 422 records and 153 columns/variables.
-
-
-## Explore the difference in number records between datasets
-
-```{r why difference in num records}
-
-# Which observations are absent from data_iNatTool
-unique(data_api[! data_api$uuid %in% data_iNatTools$uuid,]$quality_grade)
+# Import data subfiles and reassemble the dataset
+for(i in 1:3){
+  subFile <- readRDS(paste("../data/",i,"-Can_bees_API_2020-05-27.rds",sep = ""))
+  
+  if(i == 1) data_api <- subFile
+  if(i > 1) data_api <- bind_rows(data,subFile)
+}
 
 ```
 
-All observations absent from *data_iNatTool* have *casual* quality grade!!!
-
-These observations are not usefull to us as they are not verifiable. i.e., they do not have the minimum documentation.
+The dataset *data* is comprized of 25899 records and 154 columns/variables.
 
 
 ## Lets remove these casual quality grade observations from data_api to avoid mistakes
@@ -50,8 +39,6 @@ data <- data_api[! data_api$quality_grade == "casual",]
 
 ```
 
-I selected *data_api* as the data we'll use, but *data_iNatTools* could equally be used.
-
 
 ## Available information on observations
 
@@ -62,7 +49,7 @@ colnames(data)
 
 ```
 
-153 columns.
+154 columns/variables.
 
 
 ### What columns may hold information on ID quality
@@ -89,7 +76,7 @@ num_identification: [37] num_identification_agreements, [46] num_identification_
 
 [151] user.roles: none, curator, admin
 
-**Possibility to get maverick identifications (Taxon is not a descendant or ancestor of the community taxon. The community does not agree with this identification) from API.
+**Possibility to get maverick identifications (Taxon is not a descendant or ancestor of the community taxon. The community does not agree with this identification) from API**
 
 
 ### What information did other studies used?
@@ -154,19 +141,19 @@ There are 367 observations identified as *most_agree* and as *some_agree* in the
 
 ### Plot results
 
-```{r pressure, echo=FALSE}
+```{r pressure}
 
 y <- c(all, prop_most_agree,prop_most_disagree,prop_some_agree)
-barplot(y, names.arg = c("all \nn=416", "most_agree \nn=367","most_disagree \nn=1","some_agree \nn=367"), ylab = "Proportion research grade", ylim = c(0,1))
+barplot(y, names.arg = c("all \nn=25490", "most_agree \nn=21312","most_disagree \nn=33","some_agree \nn=21315"), ylab = "Proportion research grade", ylim = c(0,1))
 
 ```
 
 
-~ 70% (296) of observations received *research* quality grade. Others (120) were identified as *needs_id*.
+~ 65% (16435) of observations received *research* quality grade. Others were identified as *needs_id*.
 
- ~80% (294) of observations identified as *most_agree* and *some_agree* and none of the *most_disagree* observations recieved *research* quality grade. The remaining (~20% observations identified as *most_agree* and *some_agree* and 100% of *most_disagree* observations) recieved a *needs_id* quality grade.
+ ~75% (16435) of observations identified as *most_agree* and *some_agree* and none of the *most_disagree* observations recieved *research* quality grade. The remaining (~25% observations identified as *most_agree* and *some_agree* and 100% of *most_disagree* observations) recieved a *needs_id* quality grade.
 
-It appears some observations (2 *research* and 46 *needs_id*) are found in neither of the identification categories?!?
+It appears some observations are found in neither of the identification categories?!?
 
 
 ## Explore which observations are found in neither of the identification categories
@@ -199,16 +186,15 @@ notResearchObs <- data[! data$quality_grade == "research" &
                          data$identifications_count > 1,]
 
 # View distribution of identification counts
-hist(notResearchObs$identifications_count, xlab = "Number identification count \nn=26")
+hist(notResearchObs$identifications_count, xlab = "Number identification count \nn=1943")
+
 ```
 
-\br 
 
 ## Are the non-research grade observations really disagreed upon?
 
-\br 
-
 ```{r disagreement in non-research quality grade}
+
 # Subseting data.frame for plotting purposes 
 library(tidyverse)
 notResearchObs_plot <- notResearchObs %>%
@@ -229,40 +215,31 @@ ggplot(notResearchObs_plot, aes(x=id,y=PercAgreement)) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))+
     ylab("Identifiers agreement")+
     xlab("Observation ID")
+    
 ```
 
-\br
-
-```{r Bees canada}
-Bees_canada <- read.csv("../data/Bees_canada_26_05_20.csv")
-```
-
-The dataset *Bees_canada* is comprized of 360009 records and 34 columns/variables.
-
-\br
 
 ## Research grade vs needs ID 
 
 ```{r Quality grade}
-ggplot(data=Bees_canada, aes(x= Bees_canada$scientific_name, fill=Bees_canada$quality_grade))+
+
+ggplot(data=data, aes(x= species_guess, fill= quality_grade))+
   ggtitle("Quality grade for each observation of a specific taxa")+
   geom_bar()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))+
   ylab("Count")+
   xlab("Scientific name")
+  
 ```
 
-\br
+The plot is not very clear due to the ammount of observations
 
-There are too many taxa to plot! 
 
-\br
-
-**Objective** : select the taxa which have more "needs_id" observation than "research grade" observations
+## **Objective** : select the taxa which have more "needs_id" observation than "research grade" observations
 
 ```{r Quality grade, needs_id > research grade}
 
-Bees_CA_Qgrade <- plyr::count(Bees_canada, c("scientific_name","quality_grade"))
+Bees_CA_Qgrade <- plyr::count(data, c("species_guess","quality_grade"))
 # Counts the occurences of quality grade per taxa (scientific name)
 
 library(tidyr)
@@ -276,7 +253,7 @@ library(reshape2)
 Bees_Needs_ID_long <- melt(Bees_Needs_ID)# Convert to wide format for plotting
 
 # Plot
-ggplot(data=Bees_Needs_ID_long, aes(x= Bees_Needs_ID_long$scientific_name, y=Bees_Needs_ID_long$value, fill=Bees_Needs_ID_long$variable))+
+ggplot(data=Bees_Needs_ID_long, aes(x = species_guess,y = value, fill = variable))+
   ggtitle("Taxa for which there are more needs_id observations than research grade")+
   geom_bar(stat="identity",position="stack")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5),
@@ -286,5 +263,7 @@ ggplot(data=Bees_Needs_ID_long, aes(x= Bees_Needs_ID_long$scientific_name, y=Bee
   xlab("Scientific name")
 
 ``` 
+
+Ohhh interesting results!!!
 
 Although this still lacks clarity, it seems that many taxa in this plot are not identified to species level.
