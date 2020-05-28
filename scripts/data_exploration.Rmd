@@ -267,3 +267,89 @@ ggplot(data=Bees_Needs_ID_long, aes(x = species_guess,y = value, fill = variable
 Ohhh interesting results!!!
 
 Although this still lacks clarity, it seems that many taxa in this plot are not identified to species level.
+
+
+
+
+```{r Disagreement ratio}
+
+data$RatioMisId<- data$num_identification_disagreements/data$identifications_count
+# Creates a new column with the ratio of disagreeement for each observation
+hist(data$RatioMisId)
+
+# Select the data which have disagreeements (ratio disagreement / # identification > 0)
+RatioMisIdSup0 <- subset(data, data$RatioMisId>0)
+hist(RatioMisIdSup0$RatioMisId,
+     main="Disagreement ratio density plot",
+     xlab="Disagreement ratio",
+     xlim=c(0,1),
+     ylim=c(0,140))
+
+```
+
+
+```{r Disagreement & taxon rank - Pie chart}
+bee_color_palette <- c('#f8f7de','#f7ea87'	,'#d29d30'	,'#854d0d'	,'#3a200c')
+# Color palette
+
+
+Taxon_rank<- plyr::count(RatioMisIdSup0, "taxon.rank")
+# Counts the number of observations according to there taxonomic rank
+
+# Pie chart # 
+slices <- Taxon_rank$freq
+pct <- round(slices/sum(slices)*100)
+lbls <- Taxon_rank$taxon.rank
+lbls <- paste(lbls, pct, sep="\n") # add percents to labels
+lbls <- paste(lbls,"%",sep="") # ad % to labels
+
+pie(slices,labels = lbls, cex=1.5,col=bee_color_palette, main=title("More than 2/3 of the taxa disagreed upon \n are identified to species level", line = -2,cex.main=2))
+```
+
+
+
+```{r Disagreement & taxonomy - Genus histogram}
+Taxonomy<- plyr::count(RatioMisIdSup0, c("taxon.rank","taxon.name"))
+# Counts the number of observations according to there taxon name and rank
+
+# Plots the disagreements for each observation identified to genus level
+Genus <-  ggplot(data=(Taxonomy[Taxonomy$taxon.rank=="genus",]), aes(x = taxon.rank ,y = freq, fill = taxon.name))+
+  geom_bar(stat="identity",position="dodge")+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        legend.position = "bottom")+
+  scale_fill_discrete("Genus")+
+  ylab("Count")
+
+```
+
+```{r Disagreement & taxonomy - Species histogram}
+# Plots the disagreements for each observation identified to species level
+Species <-  ggplot(data=(Taxonomy[Taxonomy$taxon.rank=="species",]), aes(x = taxon.rank ,y = freq, fill = taxon.name))+
+   geom_bar(stat="identity", position="dodge")+
+   theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        legend.position = "bottom")+
+  scale_fill_discrete("Species")+
+  ylab("Count")
+```
+
+```{r Disagreement & taxonomy - Genus + Species histogram}
+Taxonomy_GandS <- subset(Taxonomy,taxon.rank=="species" | taxon.rank=="genus")
+Taxonomy_GandS$genus <- sub(" [A-z ]*", "", Taxonomy_GandS$taxon.name)
+# Extracts the genus from the species name.
+
+# Plots the disagreements for each observation with genus and species identification
+GenuswithSpecies <-  ggplot(data=Taxonomy_GandS, aes(x = genus ,y = freq, fill = taxon.name))+
+   geom_bar(stat="identity", position="stack", colour = "black")+
+   theme(axis.title.y = element_text(size=25),
+        axis.text.y= element_text(size=20))+
+   theme(axis.title.x = element_blank(),
+        axis.text.x= element_text(size=20, angle=45, hjust=1))+
+   theme(legend.position = "right")+
+  scale_fill_discrete("Species")+
+  ylab("Count")
+``` 
+
