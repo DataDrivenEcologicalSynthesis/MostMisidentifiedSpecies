@@ -76,7 +76,7 @@ num_identification: [37] num_identification_agreements, [46] num_identification_
 
 [151] user.roles: none, curator, admin
 
-**Possibility to get maverick identifications (Taxon is not a descendant or ancestor of the community taxon. The community does not agree with this identification) from API.
+**Possibility to get maverick identifications (Taxon is not a descendant or ancestor of the community taxon. The community does not agree with this identification) from API**
 
 
 ### What information did other studies used?
@@ -141,7 +141,7 @@ There are 367 observations identified as *most_agree* and as *some_agree* in the
 
 ### Plot results
 
-```{r pressure, echo=FALSE}
+```{r pressure}
 
 y <- c(all, prop_most_agree,prop_most_disagree,prop_some_agree)
 barplot(y, names.arg = c("all \nn=25490", "most_agree \nn=21312","most_disagree \nn=33","some_agree \nn=21315"), ylab = "Proportion research grade", ylim = c(0,1))
@@ -187,12 +187,14 @@ notResearchObs <- data[! data$quality_grade == "research" &
 
 # View distribution of identification counts
 hist(notResearchObs$identifications_count, xlab = "Number identification count \nn=1943")
+
 ```
 
 
 ## Are the non-research grade observations really disagreed upon?
 
 ```{r disagreement in non-research quality grade}
+
 # Subseting data.frame for plotting purposes 
 library(tidyverse)
 notResearchObs_plot <- notResearchObs %>%
@@ -213,18 +215,21 @@ ggplot(notResearchObs_plot, aes(x=id,y=PercAgreement)) +
     theme(axis.text.x = element_text(angle = 90, hjust = 1))+
     ylab("Identifiers agreement")+
     xlab("Observation ID")
+    
 ```
 
 
 ## Research grade vs needs ID 
 
 ```{r Quality grade}
+
 ggplot(data=data, aes(x= species_guess, fill= quality_grade))+
   ggtitle("Quality grade for each observation of a specific taxa")+
   geom_bar()+
   theme(axis.text.x = element_text(angle = 90, hjust = 1,vjust=0.5))+
   ylab("Count")+
   xlab("Scientific name")
+  
 ```
 
 The plot is not very clear due to the ammount of observations
