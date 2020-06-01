@@ -1,0 +1,74 @@
+---
+title: "Taxon rank figure creation"
+author: "MostMisidentifiedSpecies team"
+date: "2020-06-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r import data using iNatTools package}
+
+# Libraries
+library("tidyverse")
+
+# Import data subfiles and reassemble the dataset
+for(i in 1:3){
+  subFile <- readRDS(paste("../data/",i,"-Can_bees_API_2020-05-27.rds",sep = ""))
+  
+  if(i == 1) data_api <- subFile
+  if(i > 1) data_api <- bind_rows(data_api,subFile)
+}
+
+```
+
+The dataset *data* is comprized of 25899 records and 154 columns/variables.
+
+
+## Lets remove these casual quality grade observations from data_api to avoid mistakes
+
+```{r clean data}
+
+# Remove casual quality grade observations
+data <- data_api[! data_api$quality_grade == "casual",]
+
+```
+
+
+
+
+```{r Disagreement ratio}
+
+data$RatioMisId<- data$num_identification_disagreements/data$identifications_count
+# Creates a new column with the ratio of disagreeement for each observation
+hist(data$RatioMisId)
+
+# Select the data which have disagreeements (ratio disagreement / # identification > 0)
+RatioMisIdSup0 <- subset(data, data$RatioMisId>0)
+
+hist(RatioMisIdSup0$RatioMisId,
+     main="Disagreement ratio density plot",
+     xlab="Disagreement ratio",
+     xlim=c(0,1),
+     ylim=c(0,140))
+
+```
+
+```{r Disagreement & taxon rank - Pie chart}
+####    CHANGE COLOUR PALETTE AND FIGURE STYLE    ####
+Taxon_rank<- plyr::count(RatioMisIdSup0, "taxon.rank")
+# Counts the number of observations according to there taxonomic rank
+
+# Pie chart # 
+slices <- Taxon_rank$freq
+pct <- round(slices/sum(slices)*100)
+lbls <- Taxon_rank$taxon.rank
+lbls <- paste(lbls, pct, sep="\n") # add percents to labels
+lbls <- paste(lbls,"%",sep="") # ad % to labels
+
+
+##### CHANGE COLOUR PALETTE ######
+pie(slices,labels = lbls, cex=1.5,col=viridis, main=title("More than 2/3 of the taxa disagreed upon \n are identified to species level", line = -2,cex.main=2))
+```
