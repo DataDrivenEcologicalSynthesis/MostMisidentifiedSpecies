@@ -1,7 +1,7 @@
 # MostMisidentifiedSpecies
 <b> What bee species in Canada are the most commonly misidentified and why? :mag_right: :bee: </b>
 
-For additional information, please read our <b>Project Overview</b>, <em><a href="https://github.com/orgs/DataDrivenEcologicalSynthesis/teams/mostmisidentifiedspecies">Discussion Board</a></em>, or our <em><a href="https://github.com/DataDrivenEcologicalSynthesis/MostMisidentifiedSpecies/wiki">Wiki Pages</a></em>.
+For additional information, please read our <b>Project Overview</b> below, or see our <em><a href="https://github.com/orgs/DataDrivenEcologicalSynthesis/teams/mostmisidentifiedspecies">Discussion Board</a></em>, and <em><a href="https://github.com/DataDrivenEcologicalSynthesis/MostMisidentifiedSpecies/wiki">Wiki Pages</a></em>.
 
 ## Project overview
 
