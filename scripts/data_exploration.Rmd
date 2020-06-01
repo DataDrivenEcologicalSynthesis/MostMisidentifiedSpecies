@@ -172,7 +172,7 @@ missing_obs <- unique(data[! data$uuid %in% agreement$uuid &
 length(missing_obs)
 
 # # View
-View(data[data$uuid == missing_obs,])
+# View(data[data$uuid == missing_obs,])
 
 ```
 
@@ -279,6 +279,7 @@ hist(data$RatioMisId)
 
 # Select the data which have disagreeements (ratio disagreement / # identification > 0)
 RatioMisIdSup0 <- subset(data, data$RatioMisId>0)
+
 hist(RatioMisIdSup0$RatioMisId,
      main="Disagreement ratio density plot",
      xlab="Disagreement ratio",
@@ -286,7 +287,6 @@ hist(RatioMisIdSup0$RatioMisId,
      ylim=c(0,140))
 
 ```
-
 
 ```{r Disagreement & taxon rank - Pie chart}
 bee_color_palette <- c('#f8f7de','#f7ea87'	,'#d29d30'	,'#854d0d'	,'#3a200c')
@@ -309,6 +309,8 @@ pie(slices,labels = lbls, cex=1.5,col=bee_color_palette, main=title("More than 2
 
 
 ```{r Disagreement & taxonomy - Genus histogram}
+library(viridis)
+
 Taxonomy<- plyr::count(RatioMisIdSup0, c("taxon.rank","taxon.name"))
 # Counts the number of observations according to there taxon name and rank
 
@@ -319,7 +321,7 @@ Genus <-  ggplot(data=(Taxonomy[Taxonomy$taxon.rank=="genus",]), aes(x = taxon.r
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank(),
         legend.position = "bottom")+
-  scale_fill_discrete("Genus")+
+  scale_fill_viridis("Genus",discrete=FALSE)+
   ylab("Count")
 
 ```
@@ -332,9 +334,12 @@ Species <-  ggplot(data=(Taxonomy[Taxonomy$taxon.rank=="species",]), aes(x = tax
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank(),
         legend.position = "bottom")+
-  scale_fill_discrete("Species")+
+  scale_fill_viridis("Species",discrete=FALSE)+
   ylab("Count")
 ```
+
+
+
 
 ```{r Disagreement & taxonomy - Genus + Species histogram}
 Taxonomy_GandS <- subset(Taxonomy,taxon.rank=="species" | taxon.rank=="genus")
@@ -349,7 +354,7 @@ GenuswithSpecies <-  ggplot(data=Taxonomy_GandS, aes(x = genus ,y = freq, fill =
    theme(axis.title.x = element_blank(),
         axis.text.x= element_text(size=20, angle=45, hjust=1))+
    theme(legend.position = "right")+
-  scale_fill_discrete("Species")+
+  scale_fill_viridis("Species",discrete=TRUE)+
+  #scale_fill_discrete("Species")+
   ylab("Count")
 ``` 
-
