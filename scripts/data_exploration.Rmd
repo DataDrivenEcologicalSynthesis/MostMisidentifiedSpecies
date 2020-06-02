@@ -277,14 +277,15 @@ data$RatioMisId<- data$num_identification_disagreements/data$identifications_cou
 # Creates a new column with the ratio of disagreeement for each observation
 hist(data$RatioMisId)
 
-# Select the data which have disagreeements (ratio disagreement / # identification > 0)
-RatioMisIdSup0 <- subset(data, data$RatioMisId>0)
-
-hist(RatioMisIdSup0$RatioMisId,
+# Select the data which have disagreements (ratio disagreement / # identification > 0)
+data %>%
+subset(RatioMisId>0) %>%
+with(
+  hist(RatioMisId,
      main="Disagreement ratio density plot",
      xlab="Disagreement ratio",
      xlim=c(0,1),
-     ylim=c(0,140))
+     ylim=c(0,140)))
 
 ```
 
@@ -311,7 +312,9 @@ pie(slices,labels = lbls, cex=1.5,col=bee_color_palette, main=title("More than 2
 ```{r Disagreement & taxonomy - Genus histogram}
 library(viridis)
 
-Taxonomy<- plyr::count(RatioMisIdSup0, c("taxon.rank","taxon.name"))
+Taxonomy<- data %>%
+  subset(RatioMisId>0) %>%
+  count(RatioMisIdSup0, c("taxon.rank","taxon.name"))
 # Counts the number of observations according to there taxon name and rank
 
 # Plots the disagreements for each observation identified to genus level
