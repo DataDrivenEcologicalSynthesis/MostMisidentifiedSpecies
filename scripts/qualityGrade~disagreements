@@ -20,21 +20,10 @@ data <- rbind(bees1, bees2, bees3)
 data$RatioDisagree <- data$num_identification_disagreements/data$identifications_count
 data_disagree <- dplyr::filter(data, RatioDisagree > 0)
 
-plot3 <- ggplot(data_disagree, aes(quality_grade, RatioDisagree)) + geom_col()
+plot3 <- ggplot(data_disagree, aes(quality_grade, RatioDisagree)) + geom_boxplot()
 plot3
-
-###############
-
-# select data with ratio of AGREEMENT per observation > 0
-data$RatioAgree <- data$num_identification_agreements/data$identifications_count
-data_agree <- dplyr::filter(data, RatioAgree > 0)
-
-plot4 <- ggplot(data_agree, aes(quality_grade, RatioAgree)) + geom_col()
-plot4
-
 
 # ... to be continued
 
-# Notes:
-# Perhaps we should define misidentified species as those with low agreement? Or, maybe it doesn't matter. Let's keep exploring. 
+
 
