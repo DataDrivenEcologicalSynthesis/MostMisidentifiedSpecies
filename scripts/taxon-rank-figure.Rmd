@@ -58,7 +58,7 @@ Taxon_rank$freqlbls <- as.character(Taxon_rank$freq)
 # Creates label for frequency plot
 
 ### bar plot taxon rank ~ total frequency###
-ggplot(data=Taxon_rank, aes(x=taxon.rank, y=freq, fill = taxon.rank))+
+freqplot<- ggplot(data=Taxon_rank, aes(x=taxon.rank, y=freq, fill = taxon.rank))+
   geom_bar(stat="identity",width=0.7, colour = "black")+
   xlab("Identification level")+
   ylab("Frequency of ID disagreeance")+
@@ -69,6 +69,7 @@ ggplot(data=Taxon_rank, aes(x=taxon.rank, y=freq, fill = taxon.rank))+
   geom_text(aes(label=freqlbls), vjust=-0.5)+
   theme_bw()
 
+ggsave("/Users/jadedawson/Documents/GitHub/website/MostMisidentifiedSpecies/Figures/freqMisID~taxonrank.pdf", plot = freqplot, device = "pdf")
 
 Taxon_rank$pct <- round(Taxon_rank$freq/sum(Taxon_rank$freq)*100)
 Taxon_rank$pctlbls <- as.character(Taxon_rank$pct)
@@ -76,7 +77,7 @@ Taxon_rank$pctlbls <- paste(Taxon_rank$pctlbls,"%",sep="") # add % to labels
 # Creates label for % plot
 
 ### bar plot taxon rank ~ percent frequency###
-ggplot(data=Taxon_rank, aes(x=taxon.rank, y=pct, fill = taxon.rank))+
+pctplot<- ggplot(data=Taxon_rank, aes(x=taxon.rank, y=pct, fill = taxon.rank))+
   geom_bar(stat="identity",width=0.7, colour = "black")+
   xlab("Identification level")+
   ylab("Proportion of ID disagreeance (%)")+
@@ -86,5 +87,7 @@ ggplot(data=Taxon_rank, aes(x=taxon.rank, y=pct, fill = taxon.rank))+
   scale_fill_manual(name = "Taxonomic rank", labels = c("Genus", "Species", "Subfamily", "Subgenus", "Tribe"), values = c('#e66101','#fdb863','#f7f7f7','#b2abd2','#5e3c99'))+
   geom_text(aes(label=pctlbls), vjust=-0.5)+
   theme_bw()
+
+ggsave("/Users/jadedawson/Documents/GitHub/website/MostMisidentifiedSpecies/Figures/pctMisID~taxonrank.pdf", plot = pctplot, device = "pdf")
 
 ```
