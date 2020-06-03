@@ -50,7 +50,6 @@ RatioMisIdSup0 <- subset(data, data$RatioMisId>0)
 ```
 
 ```{r Disagreement & taxon rank - Pie chart}
-colour_palette <- c('#e66101','#fdb863'	,'#f7f7f7'	,'#b2abd2'	,'#5e3c99')
 
 Taxon_rank<- plyr::count(RatioMisIdSup0, "taxon.rank")
 # Counts the number of observations according to there taxonomic rank
