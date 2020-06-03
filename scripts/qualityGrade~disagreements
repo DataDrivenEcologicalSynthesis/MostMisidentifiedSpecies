@@ -1,0 +1,40 @@
+# Goal: to explore the relationship between misidentified species and the quality grade of observations.
+# Does quality grade reflect the level of disagreement?
+
+
+# Load libraries
+library(dplyr)
+library(ggplot2)
+library(viridis)
+
+# load and merge data for bees in Canada (sorry for loading from my own computer - not sure how to load directly from GitHub)
+setwd("/Users/macrolab2018_2admin/Desktop/ddes_misidentified_species") 
+bees1 <- readRDS("1-Can_bees_API_2020-05-27.rds")
+bees2 <- readRDS("2-Can_bees_API_2020-05-27.rds")
+bees3 <- readRDS("3-Can_bees_API_2020-05-27.rds")
+data <- rbind(bees1, bees2, bees3)
+
+################
+
+# select data with ratio of DISAGREEMENT per observation > 0
+data$RatioDisagree <- data$num_identification_disagreements/data$identifications_count
+data_disagree <- dplyr::filter(data, RatioDisagree > 0)
+
+plot3 <- ggplot(data_disagree, aes(quality_grade, RatioDisagree)) + geom_col()
+plot3
+
+###############
+
+# select data with ratio of AGREEMENT per observation > 0
+data$RatioAgree <- data$num_identification_agreements/data$identifications_count
+data_agree <- dplyr::filter(data, RatioAgree > 0)
+
+plot4 <- ggplot(data_agree, aes(quality_grade, RatioAgree)) + geom_col()
+plot4
+
+
+# ... to be continued
+
+# Notes:
+# Perhaps we should define misidentified species as those with low agreement? Or, maybe it doesn't matter. Let's keep exploring. 
+
