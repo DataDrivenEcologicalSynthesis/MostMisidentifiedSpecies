@@ -42,33 +42,49 @@ data <- data_api[! data_api$quality_grade == "casual",]
 ```{r Disagreement ratio}
 
 data$RatioMisId<- data$num_identification_disagreements/data$identifications_count
-# Creates a new column with the ratio of disagreeement for each observation
-hist(data$RatioMisId)
+
 
 # Select the data which have disagreeements (ratio disagreement / # identification > 0)
 RatioMisIdSup0 <- subset(data, data$RatioMisId>0)
 
-hist(RatioMisIdSup0$RatioMisId,
-     main="Disagreement ratio density plot",
-     xlab="Disagreement ratio",
-     xlim=c(0,1),
-     ylim=c(0,140))
-
 ```
 
 ```{r Disagreement & taxon rank - Pie chart}
-####    CHANGE COLOUR PALETTE AND FIGURE STYLE    ####
+colour_palette <- c('#e66101','#fdb863'	,'#f7f7f7'	,'#b2abd2'	,'#5e3c99')
+
 Taxon_rank<- plyr::count(RatioMisIdSup0, "taxon.rank")
 # Counts the number of observations according to there taxonomic rank
 
-# Pie chart # 
-slices <- Taxon_rank$freq
-pct <- round(slices/sum(slices)*100)
-lbls <- Taxon_rank$taxon.rank
-lbls <- paste(lbls, pct, sep="\n") # add percents to labels
-lbls <- paste(lbls,"%",sep="") # ad % to labels
+Taxon_rank$freqlbls <- as.character(Taxon_rank$freq)
+# Creates label for frequency plot
+
+### bar plot taxon rank ~ total frequency###
+ggplot(data=Taxon_rank, aes(x=taxon.rank, y=freq, fill = taxon.rank))+
+  geom_bar(stat="identity",width=0.7, colour = "black")+
+  xlab("Identification level")+
+  ylab("Frequency of ID disagreeance")+
+  ggtitle("More than 2/3 of the taxa disagreed upon are identified to species level")+
+  scale_y_continuous()+
+  scale_x_discrete(limits=c("species", "genus", "subgenus", "subfamily", "tribe"), labels = c("Species", "Genus", "Subgenus", "Subfamily", "Tribe"))+
+  scale_fill_manual(name = "Taxonomic rank", labels = c("Genus", "Species", "Subfamily", "Subgenus", "Tribe"), values = c('#e66101','#fdb863','#f7f7f7','#b2abd2','#5e3c99'))+
+  geom_text(aes(label=freqlbls), vjust=-0.5)+
+  theme_bw()
 
 
-##### CHANGE COLOUR PALETTE ######
-pie(slices,labels = lbls, cex=1.5,col=viridis, main=title("More than 2/3 of the taxa disagreed upon \n are identified to species level", line = -2,cex.main=2))
+Taxon_rank$pct <- round(Taxon_rank$freq/sum(Taxon_rank$freq)*100)
+Taxon_rank$pctlbls <- as.character(Taxon_rank$pct)
+Taxon_rank$pctlbls <- paste(Taxon_rank$pctlbls,"%",sep="") # add % to labels
+# Creates label for % plot
+
+### bar plot taxon rank ~ percent frequency###
+ggplot(data=Taxon_rank, aes(x=taxon.rank, y=pct, fill = taxon.rank))+
+  geom_bar(stat="identity",width=0.7, colour = "black")+
+  xlab("Identification level")+
+  ylab("Proportion of ID disagreeance (%)")+
+  ggtitle("More than 2/3 of the taxa disagreed upon are identified to species level")+
+  scale_y_continuous()+
+  scale_x_discrete(limits=c("species", "genus", "subgenus", "subfamily", "tribe"), labels = c("Species", "Genus", "Subgenus", "Subfamily", "Tribe"))+
+  scale_fill_manual(name = "Taxonomic rank", labels = c("Genus", "Species", "Subfamily", "Subgenus", "Tribe"), values = c('#e66101','#fdb863','#f7f7f7','#b2abd2','#5e3c99'))+
+  geom_text(aes(label=pctlbls), vjust=-0.5)+
+  theme_bw()
 ```
