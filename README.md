@@ -1,7 +1,7 @@
 # MostMisidentifiedSpecies
 <b> What bee species in Canada are the most commonly misidentified and why? :mag_right: :bee: </b>
 
-For additional information, please read our <b>Project Overview</b> below, or see our <em><a href="https://github.com/orgs/DataDrivenEcologicalSynthesis/teams/mostmisidentifiedspecies">Discussion Board</a></em>, and <em><a href="https://github.com/DataDrivenEcologicalSynthesis/MostMisidentifiedSpecies/wiki">Wiki Pages</a></em>.
+For additional information, please read our <b>Project Overview</b> below, or see our <em><a href="https://github.com/orgs/DataDrivenEcologicalSynthesis/teams/mostmisidentifiedspecies">Discussion Board</a></em> and <em><a href="https://github.com/DataDrivenEcologicalSynthesis/MostMisidentifiedSpecies/wiki">Wiki Pages</a></em>.
 
 ## Project overview
 
@@ -15,7 +15,7 @@ The iNaturalist database is comprised of citizen science identification contribu
 
 ### Data
 
-We are using all current (as of 2020-05-27) iNaturalist observations of "Honey Bees, Bumble Bees, and Allies", better known as the family <i>Apidae</i>, from across Canada extracted from the iNaturalist API. We have also included phylogenetic information from the <em><a href="https://tree.opentreeoflife.org/opentree/argus/opentree12.3@ott93302">Tree of Life Database</a></em> for each genera in our dataset.
+We are using all current (as of 2020-05-27) iNaturalist observations of "Honey Bees, Bumble Bees, and Allies", better known as the family <i>Apidae</i>, from across Canada extracted from the iNaturalist API. We have also included phylogenetic information from the <em><a href="https://www.gbif.org/">Global Biodiversity Information Facility (GBIF)</a></em> for each genera in our dataset.
 
 ## Contributors -- in no particular order
 
