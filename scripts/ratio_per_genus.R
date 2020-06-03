@@ -1,5 +1,6 @@
 #=======================
-# Exploration of disagreements to identifications and agreements to identifications ratios on genus
+# Exploration of disagreement and agreement scores distribution on genus
+# Score: disagreements to identifications and agreements to identifications ratios
 # June 2, 2020
 # Victor Cameron
 #=======================
@@ -68,8 +69,8 @@ quartz(width = 10,height = 6)
 # Plot
 data %>%
   filter(taxon.rank == "genus" | taxon.rank == "subgenus" | taxon.rank == "species" | taxon.rank == "subspecies") %>%
-  mutate(RatioMisId = (num_identification_disagreements/identifications_count)) %>%
-  subset(RatioMisId>0) %>%
+  mutate(disagreementScore = (num_identification_disagreements/identifications_count)) %>%
+  subset(disagreementScore>0) %>%
   add_column(genus = sub(" [A-z ]*", "", .$taxon.name)) %>%
   group_by(genus) %>%
   summarize(count = n()) %>%
@@ -82,7 +83,7 @@ data %>%
         axis.text.x= element_text(size=20, angle=45, hjust=1))
 
 
-#### Plot disagreements/identifications ratio per genus ####
+#### Plot disagreements/identifications score per genus ####
 
 # Open new plot window
 quartz(width = 10,height = 6)
@@ -90,12 +91,12 @@ quartz(width = 10,height = 6)
 # Plot
 data %>%
   filter(taxon.rank == "genus" | taxon.rank == "subgenus" | taxon.rank == "species" | taxon.rank == "subspecies") %>%
-  mutate(RatioMisId = (num_identification_disagreements/identifications_count)) %>%
-  subset(RatioMisId>0) %>%
+  mutate(disagreementScore = (num_identification_disagreements/identifications_count)) %>%
+  subset(disagreementScore>0) %>%
   add_column(genus = sub(" [A-z ]*", "", .$taxon.name)) %>%
   #group_by(genus) %>%
-  #summarize(mean_ratio = mean(RatioMisId, na.rm = TRUE)) %>%
-  ggplot(aes(genus, RatioMisId, fill = genus)) +
+  #summarize(mean_ratio = mean(disagreementScore, na.rm = TRUE)) %>%
+  ggplot(aes(genus, disagreementScore, fill = genus)) +
   geom_boxplot(aes(alpha=0.5), na.rm = T, outlier.shape = NA) +
   geom_jitter(aes(colour = genus), na.rm = T) +
   ylim(0, 1) +
@@ -107,25 +108,72 @@ data %>%
         axis.text.x= element_text(size=20, angle=45, hjust=1))
 
 
-#### Plot agreements/identifications ratio per genus ####
+#### Plot agreements/identifications score per genus ####
 
 # Open new plot window
 quartz(width = 10,height = 6)
 
-# Plot
+# Plot observations agreement score per genus (1 point per observation)
 data %>%
   filter(taxon.rank == "genus" | taxon.rank == "subgenus" | taxon.rank == "species" | taxon.rank == "subspecies") %>%
-  mutate(RatioId = (num_identification_agreements/identifications_count)) %>%
-  # Remove Ratios of 1 to focus on species that have some degree of id disagreement
-  subset(RatioId<1) %>%                                                 
+  mutate(agreementScore = num_identification_agreements/identifications_count) %>%
+  # # Remove Ratios of 1 to focus on observations that have some degree of id disagreement
+  subset(agreementScore<1) %>%                                                 
   add_column(genus = sub(" [A-z ]*", "", .$taxon.name)) %>%
-  #group_by(genus) %>%
-  #summarize(mean_ratio = mean(RatioMisId, na.rm = TRUE)) %>%
-  ggplot(aes(genus, RatioId, fill = genus)) +
+  # # Plot
+  ggplot(aes(genus, agreementScore, fill = genus)) +
   geom_boxplot(aes(alpha=0.5), na.rm = T, outlier.shape = NA) +
   geom_jitter(aes(colour = genus), na.rm = T) +
   ylim(0, 1) +
   scale_color_viridis("genus",alpha=0.6,discrete = TRUE) +
+  scale_fill_viridis("genus",discrete=TRUE) +
+  theme(axis.title.y = element_text(size=25),
+        axis.text.y= element_text(size=20)) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x= element_text(size=20, angle=45, hjust=1))
+
+# Open new plot window
+quartz(width = 10,height = 6)
+
+# Plot species agreement score per genus (1 point per species)
+data %>%
+  filter(taxon.rank == "genus" | taxon.rank == "subgenus" | taxon.rank == "species" | taxon.rank == "subspecies") %>%
+  group_by(taxon.name) %>%
+  summarize(agreementScore = mean(num_identification_agreements)/mean(identifications_count)) %>%
+  # # Remove Ratios of 1 to focus on species that have some degree of id disagreement
+  subset(agreementScore<1) %>%                                                 
+  add_column(genus = sub(" [A-z ]*", "", .$taxon.name)) %>%
+  # # Plot
+  ggplot(aes(genus, agreementScore, fill = genus)) +
+  geom_boxplot(aes(alpha=0.5), na.rm = T, outlier.shape = NA) +
+  geom_jitter(aes(group = genus,colour = genus), na.rm = T) +
+  ylim(0, 1) +
+  scale_color_viridis("genus",alpha=0.6,discrete = TRUE) +
+  scale_fill_viridis("genus",discrete=TRUE) +
+  theme(axis.title.y = element_text(size=25),
+        axis.text.y= element_text(size=20)) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x= element_text(size=20, angle=45, hjust=1))
+
+
+# Open new plot window
+quartz(width = 10,height = 6)
+
+# Plot species agreement score per genus (1 point per observation)
+data %>%
+  filter(taxon.rank == "genus" | taxon.rank == "subgenus" | taxon.rank == "species" | taxon.rank == "subspecies") %>%
+  group_by(taxon.name) %>%
+  mutate(agreementScore = mean(num_identification_agreements)/mean(identifications_count)) %>%
+  ungroup() %>%
+  # # Remove Ratios of 1 to focus on species that have some degree of id disagreement
+  subset(agreementScore<1) %>%                                                 
+  add_column(genus = sub(" [A-z ]*", "", .$taxon.name)) %>%
+  # # Plot
+  ggplot(aes(genus, agreementScore, fill = genus)) +
+  geom_boxplot(aes(alpha=0.5), na.rm = T, outlier.shape = NA) +
+  geom_jitter(aes(group = genus,colour = genus), na.rm = T) +
+  ylim(0, 1) +
+  scale_color_viridis("genus",alpha=0.5,discrete = TRUE) +
   scale_fill_viridis("genus",discrete=TRUE) +
   theme(axis.title.y = element_text(size=25),
         axis.text.y= element_text(size=20)) +
