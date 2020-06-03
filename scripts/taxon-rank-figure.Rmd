@@ -43,9 +43,9 @@ data <- data_api[! data_api$quality_grade == "casual",]
 
 data$RatioMisId<- data$num_identification_disagreements/data$identifications_count
 
+
 # Select the data which have disagreeements (ratio disagreement / # identification > 0)
 RatioMisIdSup0 <- subset(data, data$RatioMisId>0)
-
 
 ```
 
@@ -86,5 +86,4 @@ ggplot(data=Taxon_rank, aes(x=taxon.rank, y=pct, fill = taxon.rank))+
   scale_fill_manual(name = "Taxonomic rank", labels = c("Genus", "Species", "Subfamily", "Subgenus", "Tribe"), values = c('#e66101','#fdb863','#f7f7f7','#b2abd2','#5e3c99'))+
   geom_text(aes(label=pctlbls), vjust=-0.5)+
   theme_bw()
-
 ```
