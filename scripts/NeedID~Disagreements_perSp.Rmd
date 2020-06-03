@@ -1,0 +1,127 @@
+---
+title: "NeedID~Disagreements"
+author: "MostMisidentifiedSpecies team"
+date: "3/6/2020"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Import data for observed bees in greater montreal as of 2020-05-27, 3:30pm
+
+```{r import data using iNatTools package}
+
+# Libraries
+library("tidyverse")
+
+# Import data subfiles and reassemble the dataset
+for(i in 1:3){
+  subFile <- readRDS(paste("../data/",i,"-Can_bees_API_2020-05-27.rds",sep = ""))
+  
+  if(i == 1) data_api <- subFile
+  if(i > 1) data_api <- bind_rows(data_api,subFile)
+}
+
+```
+The dataset *data* is comprized of 25899 records and 154 columns/variables.
+
+
+## Lets remove these casual quality grade observations from data_api to avoid mistakes
+
+```{r clean data}
+
+# Remove casual quality grade observations
+data <- data_api[! data_api$quality_grade == "casual",]
+
+```
+
+
+```{r Disagreement per species}
+
+data$RatioMisId<- data$num_identification_disagreements/data$identifications_count
+# Creates a new column with the ratio of disagreeement for each observation
+
+
+# Let's select only the few parameters we need, and select only the taxa with species level ID
+data_sub <- 
+  data %>% 
+  select(uri,quality_grade,taxon.rank,taxon.name,identifications_count,num_identification_disagreements) %>% 
+  subset(taxon.rank=="species")
+
+# When there is only 1 identification (Observers obs) it is not counted in the identifications count
+# Therefore the RatioMisId is set to NaN as we're trying to divide by 0. 
+# We'll convert these NaN values to 0 as no disagreement is actually found. 
+data_sub[is.na(data_sub)] <- 0
+
+
+# Subsetting to needed variables
+data_sub2<- 
+  data_sub %>% 
+  select(quality_grade,taxon.name,identifications_count,num_identification_disagreements)
+
+# Sums the identifications count and the number of disagreeements per species. 
+data_disagreement_per_species <- aggregate(cbind(identifications_count,num_identification_disagreements) ~ taxon.name, data = data_sub2, sum)
+```
+
+```{r Quality grade per species}
+# Counts the "Needs ID" and "Research Grade" observations per species. 
+data_QG_per_species<- plyr::count(data_sub2, c("taxon.name","quality_grade"))
+
+# Convert to wide format
+data_QG_per_species <- reshape(data_QG_per_species, idvar = "taxon.name", timevar = "quality_grade", direction = "wide")
+
+#Convert NA to 0
+data_QG_per_species[is.na(data_QG_per_species)] <- 0
+```
+
+```{r Complete data}
+# Merge both dataframes. 
+full_data <- merge(data_disagreement_per_species,data_QG_per_species, by="taxon.name")
+
+# Compute both disagreement ratio / need id ration
+full_data$MisIDRatio <- full_data$num_identification_disagreements/full_data$identifications_count
+full_data$NeedsIDRatio <- full_data$freq.needs_id/(full_data$freq.needs_id+full_data$freq.research)
+
+#Convert NA to 0
+full_data[is.na(full_data)] <- 0
+
+# Removing the species that have 0 disagreements AND 0 NeedsID 
+full_data2 <- subset(full_data,full_data$num_identification_disagreements!=0 &full_data$freq.needs_id!=0 )
+```
+
+
+```{r Plot NeedsID~Disagreements}
+library(ggplot2)
+library(ggrepel)
+
+ggplot(full_data2,aes(x=num_identification_disagreements ,y=freq.needs_id,label=paste(taxon.name,"\n",identifications_count)))+
+      geom_point(aes(colour=identifications_count))+
+      geom_text(check_overlap = T)+
+      scale_color_gradient(name="Identifications count", low='#fdb863', high='#5e3c99')+
+      ggtitle("Bombus impatiens and Apis mellifera are the two most disagreed upon species but they're also the most identified.")+
+      xlab("Disagreements per species")+
+      ylab("Needs ID observations per species")+
+      theme( axis.title.y = element_text(size=15),
+             axis.text.y= element_text(size=13),
+             axis.title.x = element_text(size=15),
+             axis.text.x= element_text(size=13))
+```
+
+  
+```{r Plot Ratio NeedsID~Disagreements}
+
+ggplot(full_data2,aes(x=MisIDRatio,y=NeedsIDRatio,label=paste(taxon.name,"\n",identifications_count)))+
+  geom_point(aes(colour=identifications_count))+
+  geom_text(check_overlap = T)+
+  scale_color_gradient(name="Identifications count", low='#fdb863', high='#5e3c99')+
+  ggtitle("Both disagreement ratio and needs ID ratio seem to increase when the species have not been frequently identified.")+
+  xlab("Disagreement ratio per species")+
+  ylab("Needs ID ratio per species")+
+  theme( axis.title.y = element_text(size=15),
+         axis.text.y= element_text(size=13),
+         axis.title.x = element_text(size=15),
+         axis.text.x= element_text(size=13))
+
+```
