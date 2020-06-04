@@ -64,7 +64,7 @@ problematic_genera <- new_bees[is.na(new_bees$species_count),]
 
 problematic_genera <- problematic_genera[!duplicated(problematic_genera$genus),]
 
-# Now with our list, I will re-assign new genus names to the problematic ones, that way they can be identified from the GBIF data.
+# Now with this list, we can re-assign new genus names to the problematic ones, that way they can be identified from the GBIF data. This can only be done for observations that have a higher-level genus rank (for example, observations in the API where the genus ID is actually subgenus; in this case, I grabbed the genus associated with that subgenus. But, this can't be done for observations where, for the genus ID, a family name is given)  
 # Apinae,Xylocopinae, and Meliponini are subfamilies and so identifications at the rank subfamily do not qualify for this genus-species count analysis
 # Anthophorini,Epeolini,Bombini,Apini, and Eucerini are tribes and so are also excluded.
 # I use new_data_api here which is just a subset of the api data, so feel free to use whatever datatable you want here.
