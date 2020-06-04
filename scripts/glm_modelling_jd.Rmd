@@ -9,19 +9,26 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r import and unzip data}
+```{r import data}
 library(tidyverse)
 
-##unzip Brenda's dataset - bees_withiNatdata.zip
+data<-read.csv("../data/iNatDataset_Normalized_SpeciesCount_SubsetforAnalysis.csv")
 
 ```
 
 ```{r clean data}
+##removing row count column
+data<-data[c(-1)]
 
-##removing unnecessary or repetitive columns
+##removing casual grade observations
+data <- data[! data$quality_grade == "casual",]
 
-##removing NAs
+##removing NAs/RatioMisID>0
+finaldata <- data %>% subset(RatioMisId>0)
 
+##removing observations not ID to species level
+finaldata <- finaldata[finaldata$taxon.rank == "species",]
+  
 ```
 
 ```{r selecting parameters to explore}
