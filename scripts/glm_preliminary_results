@@ -1,0 +1,46 @@
+# Determine what predictors influence the disagreement score within the iNat database - TO BE CONTINUED...
+
+# Load libraries
+library(dplyr)
+library(ggplot2)
+library(viridis)
+
+# load and merge data for bees in Canada (sorry for loading from my own computer - not sure how to load directly from GitHub)
+
+setwd("/Users/macrolab2018_2admin/Desktop/ddes_misidentified_species") 
+bees1 <- readRDS("1-Can_bees_API_2020-05-27.rds")
+bees2 <- readRDS("2-Can_bees_API_2020-05-27.rds")
+bees3 <- readRDS("3-Can_bees_API_2020-05-27.rds")
+data <- rbind(bees1, bees2, bees3)
+
+# select data with ratio of DISAGREEMENT per observation > 0
+data$RatioDisagree <- data$num_identification_disagreements/data$identifications_count
+data_disagree <- dplyr::filter(data, RatioDisagree > 0)
+
+
+################ Preliminary stats analyses
+
+#add a column to the data with the number of species per genus (within this dataset)
+library(stringr)
+genus <- word(data_disagree$taxon.name, 1, 1)
+data_disagree['genus'] = genus
+genus_freq <- data_disagree %>% group_by(genus) %>% dplyr::summarize(Freq = n()) %>% ungroup()
+data_disagree <- left_join(data_disagree, genus_freq)
+
+
+# Possible columns to include in our model: RatioDisagree, comments_count, user.identifications_count, identifications_count, Freq,
+                          taxon.taxon_schemes_count, ... WHAT ELSE??
+
+
+mod_data <- dplyr::select(data_disagree, RatioDisagree, comments_count, user.identifications_count, identifications_count, Freq,
+                          taxon.taxon_schemes_count) #select only variables to include in the model
+                          
+mod_data <- mod_data %>% mutate_at(c(1, 2, 3, 4, 5, 6), funs(c(scale(., center = TRUE, scale = TRUE)))) # Z score the variables
+mod_data<- na.omit(mod_data) # remove NAs
+
+model <- glm(RatioDisagree ~ comments_count + user.identifications_count + identifications_count + Freq + taxon.taxon_schemes_count, 
+              data = mod_data)
+summary(model)
+
+# Note: some of these variables are likely corrlated: which ones do we want to include? and which ones to add?
+
