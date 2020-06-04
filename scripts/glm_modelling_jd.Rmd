@@ -39,13 +39,26 @@ finaldata <- finaldata[finaldata$taxon.rank == "species",]
 
 ```{r correlation matrix on parameters of interest}
 ##corrmatrix
+library(Hmisc)
+library(corrplot)
+
 s_corrmatrix <- cor(finaldata[, colnames(finaldata) %in% c("species_count","user.identifications_count", "taxon.observations_count", "taxon.taxon_changes_count", "comments_count")], method = "spearman")
 
 round(s_corrmatrix, 3)
+corrplot(s_corrmatrix)
+
+s_corr <- rcorr(as.matrix(s_corrmatrix, type = c("spearman")))
+s_corr$r
+s_corr$P
 
 p_corrmatrix <- cor(finaldata[, colnames(finaldata) %in% c("species_count","user.identifications_count", "taxon.observations_count", "taxon.taxon_changes_count", "comments_count")], method = "pearson")
 
 round(p_corrmatrix, 3)
+corrplot(p_corrmatrix)
+
+p_corr <- rcorr(as.matrix(p_corrmatrix, type = c("pearson")))
+p_corr$r
+p_corr$P
 
 ##deciding which correlated parameters to use
 
