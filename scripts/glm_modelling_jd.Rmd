@@ -1,0 +1,53 @@
+---
+title: "glm_modelling_jd"
+author: "MostMisidentifiedSpecies Team"
+date: '2020-06-04'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r import and unzip data}
+library(tidyverse)
+
+##unzip Brenda's dataset - bees_withiNatdata.zip
+
+```
+
+```{r clean data}
+
+##removing unnecessary or repetitive columns
+
+##removing NAs
+
+```
+
+```{r selecting parameters to explore}
+
+##hypotheses
+
+```
+
+```{r correlation matrix on parameters of interest}
+
+##corrmatrix
+
+##deciding which correlated parameters to use
+
+```
+
+```{r building glm models}
+
+##building glm w/ hypothesized, uncorrelated parameters
+
+##looking at results
+
+```
+
+```{r creating glm result figure}
+
+##creating forest plot - or similar
+
+```
