@@ -73,8 +73,27 @@ We can see from the Chi-squared tests that location and observed_on are highly c
 Based on these correlation tests, we will use species_count, location, and taxon.name.
 
 ```{r building glm models}
+##creating dataframe with only parameters used in the model
+library(dplyr)
+mod_data <- dplyr::select(finaldata, RatioDisagree, species_count, location, taxon.name, user.identifications_count)
 
+mod_data <- mod_data %>% mutate(z_score = scale(value))# Z score the variables
+                          
+mod_data <- mod_data %>% mutate_at(c(1, 2, 3, 5), funs(c(scale(mod_data, center = TRUE, scale = TRUE)))) # Z score the variables
+mod_data<- na.omit(mod_data) # remove NAs
+
+model <- glm(RatioDisagree ~ comments_count + user.identifications_count + identifications_count + Freq + taxon.taxon_schemes_count, 
+              data = mod_data)
+summary(model)  
+  
 ##building glm w/ hypothesized, uncorrelated parameters, pairwise by taxon.name?
+histogram(finaldata$RatioDisagree)
+qqnorm(finaldata$RatioDisagree)
+
+glm.test <- glm(RatioDisagree ~ species_count + location + taxon.name, data = finaldata)
+summary(glm.test)
+
+
 
 ##looking at results
 
