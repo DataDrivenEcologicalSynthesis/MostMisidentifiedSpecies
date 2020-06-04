@@ -9,19 +9,26 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r import and unzip data}
+```{r import data}
 library(tidyverse)
 
-##unzip Brenda's dataset - bees_withiNatdata.zip
+data<-read.csv("../data/iNatDataset_Normalized_SpeciesCount_SubsetforAnalysis.csv")
 
 ```
 
 ```{r clean data}
+##removing row count column
+data<-data[c(-1)]
 
-##removing unnecessary or repetitive columns
+##removing casual grade observations
+data <- data[! data$quality_grade == "casual",]
 
-##removing NAs
+##removing NAs/RatioMisID>0
+finaldata <- data %>% subset(RatioDisagree>0)
 
+##removing observations not ID to species level
+finaldata <- finaldata[finaldata$taxon.rank == "species",]
+  
 ```
 
 ```{r selecting parameters to explore}
@@ -31,8 +38,14 @@ library(tidyverse)
 ```
 
 ```{r correlation matrix on parameters of interest}
-
 ##corrmatrix
+s_corrmatrix <- cor(finaldata[, colnames(finaldata) %in% c("species_count","user.identifications_count", "taxon.observations_count", "taxon.taxon_changes_count", "comments_count")], method = "spearman")
+
+round(s_corrmatrix, 3)
+
+p_corrmatrix <- cor(finaldata[, colnames(finaldata) %in% c("species_count","user.identifications_count", "taxon.observations_count", "taxon.taxon_changes_count", "comments_count")], method = "pearson")
+
+round(p_corrmatrix, 3)
 
 ##deciding which correlated parameters to use
 
