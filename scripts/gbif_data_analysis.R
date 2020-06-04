@@ -2,7 +2,7 @@ setwd("/Users/brendathompson/Desktop/mylocalrepo")
 library(tidyverse)
 
 # The first part of this script reads in the GBIF data without the iNat observations. I am not using this dataset for analysis at the moment, because it excluded genuses that are present in the iNaturalist dataset, so I thought it was better to include them rather than exclude them. Part two reads in the GBIF data that includes iNat observations, and performs an analysis on the api dataset using the genus-species data from this GBIF data.
-# There is also a really important step in the Part 2 of this script, which normalizes the genus-species names in the api dataset. This should actually be used before any analysis on the API data, otherwise observations are misrepresented.
+# There is also a really important step in Part 2 of this script, which normalizes the genus-species names in the api dataset. This should actually be used before any analysis on the API data, otherwise observations are misrepresented.
 
 #### PART 1: Open the GBIF data without iNat observations ####
 
