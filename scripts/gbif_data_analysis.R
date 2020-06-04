@@ -21,7 +21,7 @@ species_genus <- species_genus[!duplicated(species_genus$species),]
 
 # For every genus, sum the number of species
 
-table(species_genus$genus)
+genuscount_1 <- as.data.frame(table(species_genus$genus))
 
 #### Open the GBIF data with iNat observations and do the same thing####
 
@@ -41,5 +41,41 @@ species_genus_2 <- species_genus_2[!duplicated(species_genus_2$species),]
 
 # For every genus, sum the number of species
 
-table(species_genus_2$genus)
+genuscount_2 <- as.data.frame(table(species_genus_2$genus))
+
+
+### Join bees table to genuscount_2 based on genus name
+
+genuscount_2 <- genuscount_2 %>% 
+  rename(genus=Var1,
+  )
+
+genuscount_2 <- genuscount_2 %>% 
+  rename(species_count=Freq,
+  )
+
+new_bees <- left_join(new_data_api, genuscount_2)
+
+# Now we need to deal with the problematic species names in data_api, but we'll identify them first here: 
+
+problematic_genera <- new_bees[is.na(new_bees$species_count),]
+
+# Now we have repeats of problematic genera, so now I'll create a subset with only unique values.
+
+problematic_genera <- problematic_genera[!duplicated(problematic_genera$genus),]
+
+# Now with our list, I will re-assign new genus names to the problematic ones, that way they can be identified from the GBIF data.
+# Apinae,Xylocopinae, and Meliponini are subfamilies and so identifications at the rank subfamily do not qualify for this genus-species count analysis
+# Anthophorini,Epeolini,Bombini,Apini, and Eucerini are tribes and so are also excluded.
+# I use new_data_api here which is just a subset of the api data, so feel free to use whatever datatable you want here.
+new_data_api$genus[new_data_api$genus=='bombus'] <- 'Bombus'
+new_data_api$genus[new_data_api$genus=='Psithyrus'] <- 'Bombus'
+new_data_api$genus[new_data_api$genus=='Pyrobombus'] <- 'Bombus'
+new_data_api$genus[new_data_api$genus=='Zadontomerus'] <- 'Ceratina'
+new_data_api$genus[new_data_api$genus=='Thoracobombus'] <- 'Bombus'
+new_data_api$genus[new_data_api$genus=='Synhalonia'] <- 'Eucera'
+new_data_api$genus[new_data_api$genus=='Bombias'] <- 'Bombus'
+new_data_api$genus[new_data_api$genus=='Eumelissodes'] <- 'Melissodes'
+new_data_api$genus[new_data_api$genus=='Cullumanobombus'] <- 'Bombus'
+new_data_api$genus[new_data_api$genus=='Ceratinidia'] <- 'Ceratina'
 
