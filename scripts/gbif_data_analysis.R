@@ -1,11 +1,12 @@
 setwd("/Users/brendathompson/Desktop/mylocalrepo")
 library(tidyverse)
 
-#### Open the GBIF data without iNat observations ####
+# The first part of this script reads in the GBIF data without the iNat observations. I am not using this dataset for analysis at the moment, because it excluded genuses that are present in the iNaturalist dataset, so I thought it was better to include them rather than exclude them. Part two reads in the GBIF data that includes iNat observations, and performs an analysis on the api dataset using the genus-species data from this GBIF data.
+# There is also a really important step in the Part 2 of this script, which normalizes the genus-species names in the api dataset. This should actually be used before any analysis on the API data, otherwise observations are misrepresented.
+
+#### PART 1: Open the GBIF data without iNat observations ####
 
 bees <- read.csv('canada_bee_dataset.csv')
-
-t <- tail(bees,2)
 
 # Return only the genus and species columns
 
@@ -23,7 +24,10 @@ species_genus <- species_genus[!duplicated(species_genus$species),]
 
 genuscount_1 <- as.data.frame(table(species_genus$genus))
 
-#### Open the GBIF data with iNat observations and do the same thing####
+#### PART 2: Open the GBIF data with iNat observations and do the same thing####
+
+setwd("/Users/brendathompson/Desktop/mylocalrepo")
+library(tidyverse)
 
 all_bees <- read.csv('bees_withiNatdata.csv')
 
@@ -103,6 +107,16 @@ genuscount_2 <- genuscount_2 %>%
   )
 
 new_bees <- left_join(new_data_api, genuscount_2)
+
+# Running an analysis to examine misidentification level and number of species per genus
+
+library(dplyr)
+library(ggplot2)
+library(viridis)
+
+# select data with ratio of DISAGREEMENT per observation > 0
+new_bees$RatioDisagree <- new_bees$num_identification_disagreements/new_bees$identifications_count
+data_disagree <- dplyr::filter(new_bees, RatioDisagree > 0)
 
 
 
