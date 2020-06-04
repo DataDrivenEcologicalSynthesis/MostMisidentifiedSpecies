@@ -31,18 +31,14 @@ finaldata <- finaldata[finaldata$taxon.rank == "species",]
   
 ```
 
-```{r selecting parameters to explore}
-
-##hypotheses
-
-```
+Data is all cleaned up and ready to be explored.
 
 ```{r correlation matrix on parameters of interest}
 ##corrmatrix
 library(Hmisc)
 library(corrplot)
 
-s_corrmatrix <- cor(finaldata[, colnames(finaldata) %in% c("species_count","user.identifications_count", "taxon.observations_count", "taxon.taxon_changes_count", "comments_count")], method = "spearman")
+s_corrmatrix <- cor(finaldata[, colnames(finaldata) %in% c("species_count","user.identifications_count", "taxon.observations_count", "taxon.taxon_changes_count", "comments_count", "RatioDisagree")], method = "spearman")
 
 round(s_corrmatrix, 3)
 corrplot(s_corrmatrix)
@@ -60,13 +56,25 @@ p_corr <- rcorr(as.matrix(p_corrmatrix, type = c("pearson")))
 p_corr$r
 p_corr$P
 
-##deciding which correlated parameters to use
+##chi square test for categorical parameters
+chisq.test(finaldata$location, finaldata$observed_on)
+chisq.test(finaldata$location, finaldata$quality_grade)
+chisq.test(finaldata$location, finaldata$taxon.name)
+chisq.test(finaldata$observed_on, finaldata$quality_grade)
+chisq.test(finaldata$observed_on, finaldata$taxon.name)
+chisq.test(finaldata$quality_grade, finaldata$taxon.name)
 
 ```
 
+We can see from the Spearman's that species_count + taxon.taxon_changes_count are highly correlated. species_count is also correlated with taxon.observations_count (p=0.089).
+
+We can see from the Chi-squared tests that location and observed_on are highly correlated and quality_grade and taxon.name are also highly correlated.
+
+Based on these correlation tests, we will use species_count, location, and taxon.name.
+
 ```{r building glm models}
 
-##building glm w/ hypothesized, uncorrelated parameters
+##building glm w/ hypothesized, uncorrelated parameters, pairwise by taxon.name?
 
 ##looking at results
 
