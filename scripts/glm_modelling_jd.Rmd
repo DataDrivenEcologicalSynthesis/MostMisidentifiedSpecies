@@ -93,14 +93,41 @@ qqnorm(finaldata$RatioDisagree)
 glm.test <- glm(RatioDisagree ~ species_count + location + taxon.name, data = finaldata)
 summary(glm.test)
 
+###aggregate by species
+species <- finaldata %>%
+  #filter(taxon.rank == "species") %>%
+  group_by(taxon.name) %>%
+  #add_tally() %>%
+  dplyr::summarize(disagreementScore = mean(num_identification_disagreements)/mean(identifications_count), 
+            num_identification_disagreements=sum(num_identification_disagreements), 
+            num_identification_agreements=sum(num_identification_agreements), 
+            identifications_count=sum(identifications_count),
+            comments_count=sum(comments_count),
+            user.identifications_count=sum(user.identifications_count),
+            genus=genus[1],
+            species_count=species_count[1],
+            n()) %>%
+  filter(!is.na(.$disagreementScore))
 
+species$NoObs <- species$`n()`
+
+model <- glm(disagreementScore ~ comments_count + user.identifications_count + identifications_count + species_count + NoObs, data = species)
 
 ##looking at results
+summary(model)  
+Anova(model)
+
+summ(model)
 
 ```
 
 ```{r creating glm result figure}
 
 ##creating forest plot - or similar
+library(jtools)
+library(ggstance)
+library(broom.mixed)
+
+plot_summs(model, scale = TRUE)
 
 ```
