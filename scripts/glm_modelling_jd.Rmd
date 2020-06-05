@@ -38,7 +38,7 @@ Data is all cleaned up and ready to be explored.
 library(Hmisc)
 library(corrplot)
 
-s_corrmatrix <- cor(finaldata[, colnames(finaldata) %in% c("species_count","user.identifications_count", "taxon.observations_count", "taxon.taxon_changes_count", "comments_count", "RatioDisagree")], method = "spearman")
+s_corrmatrix <- cor(finaldata[, colnames(finaldata) %in% c("species_count","user.identifications_count", "taxon.observations_count", "taxon.taxon_changes_count", "comments_count", "disagreementScore")], method = "spearman")
 
 round(s_corrmatrix, 3)
 corrplot(s_corrmatrix)
@@ -84,13 +84,13 @@ mod_data<- na.omit(mod_data) # remove NAs
 histogram(finaldata$RatioDisagree)
 qqnorm(finaldata$RatioDisagree)
 
-library(emmeans)
+library(car)
 
 glm.test <- glm(RatioDisagree ~ species_count + identifications_count + user.identifications_count + comments_count + quality_grade + genus, data = finaldata)
 summary(glm.test)
 emmeans(glm.test, pairwise ~ "genus")
 
-=======
+
 glm.test <- glm(RatioDisagree ~ species_count + location + taxon.name, data = finaldata)
 summary(glm.test)
 
@@ -112,14 +112,39 @@ species <- finaldata %>%
 
 species$NoObs <- species$`n()`
 
-model <- glm(disagreementScore ~ comments_count + user.identifications_count + identifications_count + species_count + NoObs, data = species)
-
+model_s <- glm(disagreementScore ~ comments_count + user.identifications_count + identifications_count + species_count + NoObs, data = species)
 
 ##looking at results
-summary(model)  
-Anova(model)
+summary(model_s)  
+Anova(model_s)
 
-summ(model)
+summ(model_s)
+
+###aggregate by genus
+genus <- finaldata %>%
+  #filter(taxon.rank == "species") %>%
+  group_by(genus) %>%
+  #add_tally() %>%
+  dplyr::summarize(disagreementScore = mean(num_identification_disagreements)/mean(identifications_count), 
+            num_identification_disagreements=sum(num_identification_disagreements), 
+            num_identification_agreements=sum(num_identification_agreements), 
+            identifications_count=sum(identifications_count),
+            comments_count=sum(comments_count),
+            user.identifications_count=sum(user.identifications_count),
+            taxon.rank=taxon.rank[1],
+            species_count=species_count[1],
+            n()) %>%
+  filter(!is.na(.$disagreementScore))
+
+genus$NoObs <- genus$`n()`
+
+model_g <- glm(disagreementScore ~ comments_count + user.identifications_count + identifications_count + species_count + NoObs, data = genus)
+
+##looking at results
+summary(model_g)  
+Anova(model_g)
+
+summ(model_g)
 
 ```
 
@@ -129,7 +154,12 @@ summ(model)
 library(jtools)
 library(ggstance)
 library(broom.mixed)
+library(ggplot2)
 
-plot_summs(model, scale = TRUE)
+plot_summs(model_s, plot.distributions = TRUE, inner.ci = 0.9, scale = TRUE)
+
+plot_summs(model_g, plot.distributions = TRUE, inner.ci = 0.9, scale = TRUE)
+
+plot_summs(model_s, model_g, plot.distributions = TRUE, rescale.distributions = TRUE, inner.ci = 0.9, scale = TRUE)
 
 ```
