@@ -12,19 +12,12 @@ library("viridis")
 
 #### Import data ####
 
-# Import data subfiles and reassemble the dataset
-for(i in 1:3){
-  subFile <- readRDS(paste("../data/",i,"-Can_bees_API_2020-05-27.rds",sep = ""))
-  
-  if(i == 1) data_api <- subFile
-  if(i > 1) data_api <- bind_rows(data_api,subFile)
-}
+# Import data with phylogeny
+data<-read.csv("../data/iNatDataset_Normalized_SpeciesCount_SubsetforAnalysis.csv")
 
 # Remove casual quality grade observations
 data <- data_api[! data_api$quality_grade == "casual",]
 
-# Import phylogeny data
-data<-read.csv("../data/iNatDataset_Normalized_SpeciesCount_SubsetforAnalysis.csv")
 
 #### Add disagreement score ####
 
