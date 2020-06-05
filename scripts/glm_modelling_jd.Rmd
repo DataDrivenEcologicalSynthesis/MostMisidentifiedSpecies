@@ -76,24 +76,26 @@ Based on these correlation tests, we will use species_count, location, and taxon
 ##creating dataframe with only parameters used in the model
 library(dplyr)
 mod_data <- dplyr::select(finaldata, RatioDisagree, species_count, location, taxon.name, user.identifications_count)
-
-mod_data <- mod_data %>% mutate(z_score = scale(value))# Z score the variables
                           
 mod_data <- mod_data %>% mutate_at(c(1, 2, 3, 5), funs(c(scale(mod_data, center = TRUE, scale = TRUE)))) # Z score the variables
 mod_data<- na.omit(mod_data) # remove NAs
-
-model <- glm(RatioDisagree ~ comments_count + user.identifications_count + identifications_count + Freq + taxon.taxon_schemes_count, 
-              data = mod_data)
-summary(model)  
   
 ##building glm w/ hypothesized, uncorrelated parameters, pairwise by taxon.name?
 histogram(finaldata$RatioDisagree)
 qqnorm(finaldata$RatioDisagree)
 
-glm.test <- glm(RatioDisagree ~ species_count + location + taxon.name, data = finaldata)
+library(emmeans)
+
+glm.test <- glm(RatioDisagree ~ species_count + identifications_count + user.identifications_count + comments_count + quality_grade + genus, data = finaldata)
 summary(glm.test)
+emmeans(glm.test, pairwise ~ "genus")
 
-
+##AIC test
+full.model <- lm(RatioDisagree ~ species_count+identifications_count+user.identifications_count+comments_count, data = finaldata)
+# Stepwise regression model
+step.model <- stepAIC(full.model, direction = "both", 
+                      trace = FALSE)
+summary(step.model)
 
 ##looking at results
 
