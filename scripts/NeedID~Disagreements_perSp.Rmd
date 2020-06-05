@@ -89,6 +89,9 @@ full_data[is.na(full_data)] <- 0
 
 # Removing the species that have 0 disagreements AND 0 NeedsID 
 full_data2 <- subset(full_data,full_data$num_identification_disagreements!=0 &full_data$freq.needs_id!=0 )
+
+# log scale of the id_count
+full_data2$logID_count <- log1p(full_data2$identifications_count)
 ```
 
 
@@ -112,16 +115,37 @@ ggplot(full_data2,aes(x=num_identification_disagreements ,y=freq.needs_id,label=
   
 ```{r Plot Ratio NeedsID~Disagreements}
 
-ggplot(full_data2,aes(x=MisIDRatio,y=NeedsIDRatio,label=paste(taxon.name,"\n",identifications_count)))+
-  geom_point(aes(colour=identifications_count))+
-  geom_text(check_overlap = T)+
-  scale_color_gradient(name="Identifications count", low='#fdb863', high='#5e3c99')+
-  ggtitle("Both disagreement ratio and needs ID ratio seem to increase when the species have not been frequently identified.")+
-  xlab("Disagreement ratio per species")+
-  ylab("Needs ID ratio per species")+
-  theme( axis.title.y = element_text(size=15),
-         axis.text.y= element_text(size=13),
-         axis.title.x = element_text(size=15),
-         axis.text.x= element_text(size=13))
+ggplot(full_data2,aes(x=MisIDRatio,y=NeedsIDRatio))+
+  geom_point(colour="black",size=3.5)+
+  geom_point(aes(colour=identifications_count),size=3)+
+  scale_color_gradient(name="Identifications count)", low='#fdb863', high='#5e3c99')+
+  ggtitle("Disagreement score and needs ID proportion \ntend to increase when the species have not been frequently identified.")+
+  xlab("Disagreement score per species")+
+  ylab("Needs ID proportion per species")+
+  theme( plot.title = element_text(size=25),
+         axis.title.y = element_text(size=20),
+         axis.text.y= element_text(size=15),
+         axis.title.x = element_text(size=20),
+         axis.text.x= element_text(size=15),
+         legend.title = element_text(size=20),
+         legend.text = element_text(size=15))
+
+```
+```{r Plot Ratio NeedsID~Disagreements}
+
+ggplot(full_data2,aes(x=MisIDRatio,y=NeedsIDRatio))+
+  geom_point(colour="black",size=3.5)+
+  geom_point(aes(colour=identifications_count),size=3)+
+  scale_colour_gradientn(name="Identifications count",colours=c('#fdb863', "red",'#5e3c99'),values=c(0,0.1,1), breaks=seq(0, 6000, by = 1000), limits=c(0,6000))+
+  ggtitle("Disagreement score and needs ID proportion \ntend to increase when the species have not been frequently identified.")+
+  xlab("Disagreement score per species")+
+  ylab("Needs ID proportion per species")+
+  theme( plot.title = element_text(size=25),
+         axis.title.y = element_text(size=20),
+         axis.text.y= element_text(size=15),
+         axis.title.x = element_text(size=20),
+         axis.text.x= element_text(size=15),
+         legend.title = element_text(size=20),
+         legend.text = element_text(size=15))
 
 ```
